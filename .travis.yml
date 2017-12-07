@@ -11,7 +11,6 @@ scala:
 jdk:
    - oraclejdk8
 
-
 cache:
   directories:
   - $HOME/.ivy2/cache
@@ -22,3 +21,10 @@ script:
   - sbt ';project playSwagger;clean;coverage;test'
 after_success:
   - sbt ';project playSwagger;coverageReport;coveralls'
+
+deploy:
+  provider: script
+  script: "sbt publish"
+  on:
+    branch: develop
+    tags: true
