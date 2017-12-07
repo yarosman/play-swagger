@@ -13,17 +13,7 @@ lazy val root = project.in(file("."))
   .aggregate(playSwagger, sbtPlaySwagger)
   .settings(sourcesInBase := false)
   .settings(noPublishSettings:_*)
-
-lazy val playSwagger = project.in(file("core"))
-  .settings(Publish.coreSettings ++ Format.settings ++ Testing.settings)
   .settings(
-    name := "play-swagger",
-    libraryDependencies ++= Dependencies.playTest ++
-      Dependencies.playRoutesCompiler ++
-      Dependencies.playJson ++
-      Dependencies.test ++
-      Dependencies.yaml,
-    scalaVersion := "2.11.11",
     releaseIgnoreUntrackedFiles := true,
     releaseProcess := Seq[ReleaseStep](
       checkSnapshotDependencies,
@@ -38,6 +28,18 @@ lazy val playSwagger = project.in(file("core"))
       commitNextVersion,
       pushChanges
     )
+  )
+
+lazy val playSwagger = project.in(file("core"))
+  .settings(Publish.coreSettings ++ Format.settings ++ Testing.settings)
+  .settings(
+    name := "play-swagger",
+    libraryDependencies ++= Dependencies.playTest ++
+      Dependencies.playRoutesCompiler ++
+      Dependencies.playJson ++
+      Dependencies.test ++
+      Dependencies.yaml,
+    scalaVersion := "2.11.11"
   )
 
 lazy val sbtPlaySwagger = project.in(file("sbtPlugin"))
