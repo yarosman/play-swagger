@@ -15,7 +15,8 @@ object SwaggerParameterMapper {
     parameter:       Parameter,
     nameTransformer: DefinitionNameTransformer = new NoTransformer,
     modelQualifier:  DomainModelQualifier      = PrefixDomainModelQualifier(),
-    customMappings:  CustomMappings            = Nil)(implicit cl: ClassLoader): SwaggerParameter = {
+    customMappings:  CustomMappings            = Nil,
+    description:     Option[String]            = None)(implicit cl: ClassLoader): SwaggerParameter = {
 
     def removeKnownPrefixes(name: String) = name.replaceAll("(scala.)|(java.lang.)|(math.)|(org.joda.time.)", "")
 
@@ -57,7 +58,8 @@ object SwaggerParameterMapper {
         format = format,
         required = defaultValueO.isEmpty,
         default = defaultValueO,
-        enum = enum)
+        enum = enum,
+        description = description)
 
     val enumParamMF: MappingFunction = {
       case JavaEnum(enumConstants)  ⇒ genSwaggerParameter("string", enum = Option(enumConstants))
@@ -70,7 +72,7 @@ object SwaggerParameterMapper {
       GenSwaggerParameter(parameter.name, referenceType = Some(referenceType))
 
     def optionalParam(optionalTpe: String) = {
-      val asRequired = mapParam(parameter.copy(typeName = optionalTpe), nameTransformer, modelQualifier = modelQualifier, customMappings = customMappings)
+      val asRequired = mapParam(parameter.copy(typeName = optionalTpe), nameTransformer, modelQualifier = modelQualifier, customMappings = customMappings, description = description)
       asRequired.update(required = false, default = asRequired.default)
     }
 
@@ -106,7 +108,7 @@ object SwaggerParameterMapper {
         // http://stackoverflow.com/questions/26206685/how-can-i-describe-complex-json-model-in-swagger
         updateGenParam(generalParamMF("array"))(_.copy(
           items = Some(
-            mapParam(parameter.copy(typeName = collectionItemType(tpe).get), nameTransformer, modelQualifier, customMappings))))
+            mapParam(parameter.copy(typeName = collectionItemType(tpe).get), nameTransformer, modelQualifier, customMappings, description))))
     }
 
     val customMappingMF: MappingFunction = customMappings.map { mapping ⇒

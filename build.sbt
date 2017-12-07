@@ -1,3 +1,5 @@
+import sbtrelease.ReleasePlugin.autoImport.releaseProcess
+import sbtrelease.ReleaseStateTransformations._
 
 organization in ThisBuild := "com.iheart"
 
@@ -21,7 +23,21 @@ lazy val playSwagger = project.in(file("core"))
       Dependencies.playJson ++
       Dependencies.test ++
       Dependencies.yaml,
-    scalaVersion := "2.11.11"
+    scalaVersion := "2.11.11",
+    releaseIgnoreUntrackedFiles := true,
+    releaseProcess := Seq[ReleaseStep](
+      checkSnapshotDependencies,
+      inquireVersions,
+      runClean,
+      runTest,
+      setReleaseVersion,
+      commitReleaseVersion,
+      tagRelease,
+      // publishArtifacts, // release performed locally, Travis will do the publishing
+      setNextVersion,
+      commitNextVersion,
+      pushChanges
+    )
   )
 
 lazy val sbtPlaySwagger = project.in(file("sbtPlugin"))

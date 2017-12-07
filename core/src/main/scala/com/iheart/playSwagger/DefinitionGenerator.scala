@@ -1,6 +1,7 @@
 package com.iheart.playSwagger
 
-import com.iheart.playSwagger.Domain.{ CustomMappings, SwaggerParameter, GenSwaggerParameter, Definition }
+import com.iheart.playSwagger.Annotation.Description
+import com.iheart.playSwagger.Domain.{ CustomMappings, Definition, GenSwaggerParameter, SwaggerParameter }
 import com.iheart.playSwagger.SwaggerParameterMapper.mapParam
 import play.routes.compiler.Parameter
 
@@ -23,12 +24,17 @@ final case class DefinitionGenerator(
     }.toList.flatMap(_.paramLists).headOption.getOrElse(Nil)
 
     val properties = fields.map { field ⇒
+      val description = field.annotations.find(_.tree.tpe =:= typeOf[Description]).flatMap { a ⇒
+        a.tree.children.tail.collectFirst {
+          case Literal(Constant(description: String)) ⇒ description
+        }
+      }
       //TODO: find a better way to get the string representation of typeSignature
       val name = field.name.decodedName.toString
       val typeName = dealiasParams(field.typeSignature).toString
       // passing None for 'fixed' and 'default' here, since we're not dealing with route parameters
       val param = Parameter(name, typeName, None, None)
-      mapParam(param, nameTransformer, modelQualifier, mappings)
+      mapParam(param, nameTransformer, modelQualifier, mappings, description)
     }
 
     Definition(

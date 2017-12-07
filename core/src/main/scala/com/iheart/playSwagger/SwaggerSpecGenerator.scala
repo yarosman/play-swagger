@@ -192,7 +192,8 @@ final case class SwaggerSpecGenerator(
       (under \ 'default).writeNullable[JsValue] ~
       (under \ 'example).writeNullable[JsValue] ~
       (under \ "items").writeNullable[SwaggerParameter](propWrites) ~
-      (under \ "enum").writeNullable[Seq[String]])(unlift(GenSwaggerParameter.unapply))
+      (under \ "enum").writeNullable[Seq[String]] ~
+      (under \ "description").writeNullable[String])(unlift(GenSwaggerParameter.unapply))
   }
 
   private def customParamWrites(csp: CustomSwaggerParameter): List[JsObject] = {

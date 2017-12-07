@@ -29,7 +29,8 @@ object Domain {
     default:       Option[JsValue]          = None,
     example:       Option[JsValue]          = None,
     items:         Option[SwaggerParameter] = None,
-    enum:          Option[Seq[String]]      = None) extends SwaggerParameter {
+    enum:          Option[Seq[String]]      = None,
+    description:   Option[String]           = None) extends SwaggerParameter {
     def update(_required: Boolean, _default: Option[JsValue]) =
       copy(required = _required, default = _default)
   }
