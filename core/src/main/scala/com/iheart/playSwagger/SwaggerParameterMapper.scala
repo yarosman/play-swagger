@@ -12,9 +12,10 @@ object SwaggerParameterMapper {
   type MappingFunction = PartialFunction[String, SwaggerParameter]
 
   def mapParam(
-    parameter:      Parameter,
-    modelQualifier: DomainModelQualifier = PrefixDomainModelQualifier(),
-    customMappings: CustomMappings       = Nil)(implicit cl: ClassLoader): SwaggerParameter = {
+    parameter:       Parameter,
+    nameTransformer: DefinitionNameTransformer = new NoTransformer,
+    modelQualifier:  DomainModelQualifier      = PrefixDomainModelQualifier(),
+    customMappings:  CustomMappings            = Nil)(implicit cl: ClassLoader): SwaggerParameter = {
 
     def removeKnownPrefixes(name: String) = name.replaceAll("(scala.)|(java.lang.)|(math.)|(org.joda.time.)", "")
 
@@ -51,7 +52,7 @@ object SwaggerParameterMapper {
       format: Option[String]      = None,
       enum:   Option[Seq[String]] = None) =
       GenSwaggerParameter(
-        parameter.name,
+        name = nameTransformer.transform(parameter.name),
         `type` = Some(tp),
         format = format,
         required = defaultValueO.isEmpty,
@@ -69,7 +70,7 @@ object SwaggerParameterMapper {
       GenSwaggerParameter(parameter.name, referenceType = Some(referenceType))
 
     def optionalParam(optionalTpe: String) = {
-      val asRequired = mapParam(parameter.copy(typeName = optionalTpe), modelQualifier = modelQualifier, customMappings = customMappings)
+      val asRequired = mapParam(parameter.copy(typeName = optionalTpe), nameTransformer, modelQualifier = modelQualifier, customMappings = customMappings)
       asRequired.update(required = false, default = asRequired.default)
     }
 
@@ -105,7 +106,7 @@ object SwaggerParameterMapper {
         // http://stackoverflow.com/questions/26206685/how-can-i-describe-complex-json-model-in-swagger
         updateGenParam(generalParamMF("array"))(_.copy(
           items = Some(
-            mapParam(parameter.copy(typeName = collectionItemType(tpe).get), modelQualifier, customMappings))))
+            mapParam(parameter.copy(typeName = collectionItemType(tpe).get), nameTransformer, modelQualifier, customMappings))))
     }
 
     val customMappingMF: MappingFunction = customMappings.map { mapping ⇒

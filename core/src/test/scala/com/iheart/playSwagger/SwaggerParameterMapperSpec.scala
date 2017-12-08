@@ -128,6 +128,12 @@ class SwaggerParameterMapperSpec extends Specification {
         required = false,
         default = Option(JsString("defaultValue")))
     }
+    "map definition name to as it is" >> {
+      mapParam(Parameter("field_WithAny", "Any", None, None), new NoTransformer) === GenSwaggerParameter(
+        name = "field_WithAny",
+        `type` = Option("any"),
+        example = Option(JsString("any JSON value")))
+    }
   }
 }
 
